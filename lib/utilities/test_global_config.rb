@@ -79,6 +79,7 @@ module TestGlobalConfig
     "IRAS_API_SECRET" => "test-iras-secret",
 
     # Security and Encryption
+    "RAILS_MASTER_KEY" => "test-rails-master-key-32-chars!",
     "STRONGBOX_GENERAL_PASSWORD" => "test-password-123",
     "DEVISE_SECRET_KEY" => "test-devise-secret-key-" + "a" * 64,
     "SECURE_ENCRYPT_KEY" => "test-secure-encrypt-key-32bytes!",
