@@ -8,17 +8,11 @@ class GlobalConfig
     # @param default [Object] The default value to return if the value is not found in ENV or credentials
     # @return [String, Object, nil] The value from environment variable, credentials, the default value, or nil if not found and no default provided
     def get(name, default = :__no_default_provided__)
-      # In test mode, try test defaults first
-      if TestGlobalConfig.test_mode?
-        test_default = TestGlobalConfig.get_test_default(name)
-        return test_default if test_default
-      end
-
       if default == :__no_default_provided__
-        value = ENV.fetch(name, fetch_from_credentials_safe(name))
+        value = ENV.fetch(name, fetch_from_credentials(name))
         value&.presence
       else
-        ENV.fetch(name, fetch_from_credentials_safe(name) || default)
+        ENV.fetch(name, fetch_from_credentials(name) || default)
       end
     end
 
@@ -39,13 +33,9 @@ class GlobalConfig
       # Fetch a value from Rails credentials by converting the environment variable name to credential keys
       # @param name [String] The name of the environment variable
       # @return [Object, nil] The value from credentials or nil if not found
-      def fetch_from_credentials_safe(name)
-        return nil if TestGlobalConfig.test_mode?
-        
+      def fetch_from_credentials(name)
         keys = name.downcase.split("__").map(&:to_sym)
         Rails.application.credentials.dig(*keys)
-      rescue StandardError
-        nil
       end
   end
 end

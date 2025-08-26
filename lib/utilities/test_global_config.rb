@@ -78,12 +78,5 @@ module TestGlobalConfig
     "IFFY_WEBHOOK_SECRET" => "test-iffy-webhook-secret"
   }.freeze
 
-  def self.test_mode?
-    ENV["RAILS_ENV"] == "test" || ENV["GUMROAD_TEST_MODE"] == "true"
-  end
-
-  def self.get_test_default(name)
-    return nil unless test_mode?
-    TEST_DEFAULTS[name]
-  end
+# This module only provides test data - no logic that could affect production
 end
