@@ -10,7 +10,7 @@ class GlobalConfig
     def get(name, default = :__no_default_provided__)
       if default == :__no_default_provided__
         value = ENV.fetch(name, fetch_from_credentials(name))
-        value&.presence
+        value.presence
       else
         ENV.fetch(name, fetch_from_credentials(name) || default)
       end
