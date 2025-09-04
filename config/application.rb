@@ -93,7 +93,6 @@ module Gumroad
     unless Rails.env.test?
       config.mongoid.logger.level = Logger::INFO
     end
-
     config.active_storage.queues.purge = :low
 
     config.flipper.strict = false
