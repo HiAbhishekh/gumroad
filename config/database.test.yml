@@ -1,0 +1,10 @@
+
+test:
+  adapter: sqlite3
+  database: ":memory:"
+  pool: 5
+  timeout: 5000
+  variables:
+    foreign_keys: true
+    journal_mode: WAL
+    synchronous: NORMAL

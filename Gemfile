@@ -50,6 +50,7 @@ group :test do
                                        ref: "161b8c5b1a0a5408af914d7544956372e9da2c9e"
   gem "puffing-billy", "~> 4.0.0", require: "billy/capybara/rspec"
   gem "super_diff", "~> 0.12.0", require: false
+  gem "sqlite3", "~> 1.6", require: false
 end
 
 group :deployer do
@@ -65,6 +66,7 @@ gem "activerecord-mysql-index-hint", "~> 0.0"
 gem "active_model_otp", "~> 2.3"
 gem "after_commit_everywhere", "~> 1.3"
 gem "active_hash", "~> 3.3"
+# Include alterity for Rails to load, but we'll mock it in test environment
 gem "alterity", "~> 1.4"
 gem "ancestry", "~> 4.2"
 gem "apple_id", "~> 1.5"
@@ -126,6 +128,7 @@ gem "mime-types", "~> 3.4"
 gem "mini_racer", "0.16.0"
 gem "money", "~> 6.16"
 gem "mongoid", "~> 9.0"
+# Include mysql2 for Rails to load, but we'll mock it in test environment
 gem "mysql2", ">= 0.5.6"
 gem "nokogiri", "~> 1.13"
 gem "omniauth-facebook", "~> 10.0"

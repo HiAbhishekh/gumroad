@@ -89,7 +89,10 @@ module Gumroad
 
     config.hosts = nil
 
-    config.mongoid.logger.level = Logger::INFO
+    # Skip MongoDB configuration in test environment
+    unless Rails.env.test?
+      config.mongoid.logger.level = Logger::INFO
+    end
 
     config.active_storage.queues.purge = :low
 

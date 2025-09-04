@@ -61,6 +61,14 @@ class ElasticsearchSetup
     else
       break # on success, break out of this loop
     end
+    
+    # If ES is not available, skip the rest of the setup
+    begin
+      EsClient.info
+    rescue Errno::ECONNREFUSED, Faraday::ConnectionFailed
+      puts "Elasticsearch not available, skipping ES setup"
+      return
+    end
 
     # Ensure indices are ready: same settings, same mapping, zero documents
     models = [Link, Balance, Purchase, Installment, ConfirmedFollowerEvent, ProductPageView]

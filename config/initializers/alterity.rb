@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-Alterity.configure do |config|
+# Only load alterity configuration in non-test environments
+# In test environment, we mock the Alterity module
+unless Rails.env.test?
+  Alterity.configure do |config|
   config.command = -> (altered_table, alter_argument) {
     password_argument = "--password='#{config.password}'" if config.password.present?
     <<~SHELL.squish
@@ -60,5 +63,6 @@ Alterity.configure do |config|
     color = exit_status == 0 ? "green" : "red"
     SlackMessageWorker.new.perform("migrations", "Web", "Command exited with status #{exit_status}", color)
   rescue => _
+  end
   end
 end
