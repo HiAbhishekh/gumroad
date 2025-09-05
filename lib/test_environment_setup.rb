@@ -1,32 +1,33 @@
 # frozen_string_literal: true
+
 module Mysql2
   class Client
     def initialize(*args)
     end
-    
+
     def query(sql)
       []
     end
-    
+
     def close
     end
   end
-  
+
   class Result
     def initialize
       @rows = []
       @fields = []
     end
-    
-    def each
-      @rows.each { |row| yield row }
+
+    def each(&block)
+      @rows.each(&block)
     end
-    
+
     def count
       @rows.length
     end
   end
-  
+
   class Error < StandardError
   end
 end
@@ -121,7 +122,7 @@ module GlobalConfigOverride
           "STRIPE_PLATFORM_ACCOUNT_ID" => "acct_test123456",
           "STRIPE_CONNECT_CLIENT_ID" => "ca_test123456",
           "PAYPAL_USERNAME" => "test_user",
-          "PAYPAL_PASSWORD" => "test_password", 
+          "PAYPAL_PASSWORD" => "test_password",
           "PAYPAL_SIGNATURE" => "test_signature",
           "PAYPAL_CLIENT_ID" => "test_client_id",
           "PAYPAL_CLIENT_SECRET" => "test_client_secret",
@@ -158,7 +159,7 @@ module GlobalConfigOverride
           "SLACK_WEBHOOK_URL" => "https://hooks.slack.com/test",
           "CLOUDFRONT_KEYPAIR_ID" => "test_cloudfront_keypair_id"
         }
-        
+
         if test_values.key?(name)
           test_values[name]
         elsif default == :__no_default_provided__

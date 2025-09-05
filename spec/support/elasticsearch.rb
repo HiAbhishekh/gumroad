@@ -61,7 +61,7 @@ class ElasticsearchSetup
     else
       break # on success, break out of this loop
     end
-    
+
     # If ES is not available, skip the rest of the setup
     begin
       EsClient.info
