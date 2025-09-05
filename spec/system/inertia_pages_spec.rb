@@ -53,7 +53,9 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
 
       # Wait for the async operation to complete
       expect(page).to have_content("Welcome to Gumroad", wait: 5)
-      sleep(2)
+      
+      # Wait for the async operation to complete using proper RSpec waiting
+      expect(page).to have_script("window.customersCount", wait: 5)
 
       customers_count = page.evaluate_script("window.customersCount")
       expect(customers_count).not_to be_nil
@@ -98,8 +100,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.paginationData = { entries: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.paginationData", wait: 5)
 
       pagination_data = page.evaluate_script("window.paginationData")
       expect(pagination_data).not_to be_nil
@@ -117,8 +119,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.searchResults = { entries: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.searchResults", wait: 5)
 
       search_results = page.evaluate_script("window.searchResults")
       expect(search_results).not_to be_nil
@@ -156,8 +158,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.analyticsData = { revenue_data: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.analyticsData", wait: 5)
 
       analytics_data = page.evaluate_script("window.analyticsData")
       expect(analytics_data).not_to be_nil
@@ -184,8 +186,9 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.referralData = { referral_data: [] })
       ")
 
-      # Wait for async operations
-      sleep(2)
+      # Wait for async operations using proper RSpec waiting
+      expect(page).to have_script("window.stateData", wait: 5)
+      expect(page).to have_script("window.referralData", wait: 5)
 
       state_data = page.evaluate_script("window.stateData")
       referral_data = page.evaluate_script("window.referralData")
@@ -238,8 +241,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.customersData = { customers: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.customersData", wait: 5)
 
       customers_data = page.evaluate_script("window.customersData")
       expect(customers_data).not_to be_nil
@@ -257,8 +260,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.searchResults = { customers: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.searchResults", wait: 5)
 
       search_results = page.evaluate_script("window.searchResults")
       expect(search_results).not_to be_nil
@@ -276,8 +279,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.customerCharges = [])
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.customerCharges", wait: 5)
 
       customer_charges = page.evaluate_script("window.customerCharges")
       expect(customer_charges).not_to be_nil
@@ -322,8 +325,8 @@ RSpec.describe "Inertia Pages", type: :system, js: true do
           .catch(error => window.paymentsData = { payouts: [] })
       ")
 
-      # Wait for async operation
-      sleep(2)
+      # Wait for async operation using proper RSpec waiting
+      expect(page).to have_script("window.paymentsData", wait: 5)
 
       payments_data = page.evaluate_script("window.paymentsData")
       expect(payments_data).not_to be_nil
