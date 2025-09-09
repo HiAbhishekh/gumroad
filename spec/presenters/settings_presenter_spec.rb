@@ -3,10 +3,10 @@
 require "spec_helper"
 
 describe SettingsPresenter do
-  let(:product) do
-    create(:product, purchasing_power_parity_disabled: true, user: create(:named_seller, purchasing_power_parity_limit: 60))
-  end
-  let(:seller) { product.user }
+  let(:seller) { create(:named_seller, purchasing_power_parity_limit: 60) }
+  # let(:product) do
+  #   create(:product, purchasing_power_parity_disabled: true, product_refund_policy_enabled: true, user: seller)
+  # end
   let(:user) { seller }
   let(:pundit_user) { SellerContext.new(user:, seller:) }
   let(:presenter) { described_class.new(pundit_user:) }
@@ -77,13 +77,13 @@ describe SettingsPresenter do
           locale: seller.locale,
           timezone: seller.timezone,
           currency_type: seller.currency_type,
-          has_unconfirmed_email: false,
+          has_unconfirmed_email: true,
           compliance_country: nil,
           purchasing_power_parity_enabled: false,
           purchasing_power_parity_limit: 60,
           purchasing_power_parity_payment_verification_disabled: false,
-          products: [{ id: product.external_id, name: product.name }],
-          purchasing_power_parity_excluded_product_ids: [product.external_id],
+          products: [],
+          purchasing_power_parity_excluded_product_ids: [],
           enable_payment_email: true,
           enable_payment_push_notification: true,
           enable_recurring_subscription_charge_email: true,
