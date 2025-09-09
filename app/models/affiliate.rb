@@ -12,6 +12,15 @@ class Affiliate < ApplicationRecord
   QUERY_PARAM = "affiliate_id"
   SHORT_QUERY_PARAM = "a"
   QUERY_PARAMS = [QUERY_PARAM, SHORT_QUERY_PARAM]
+  AFFILIATE_COOKIE_LIFETIME_DAYS = 30
+
+  def self.cookie_lifetime
+    AFFILIATE_COOKIE_LIFETIME_DAYS.days
+  end
+
+  def show_as_co_creator_for_product?(product)
+    false
+  end
 
   belongs_to :affiliate_user, class_name: "User"
   has_many :affiliate_credits
@@ -101,11 +110,11 @@ class Affiliate < ApplicationRecord
   end
 
   def collaborator?
-    type == Collaborator.name
+    self.class.name == Collaborator.name
   end
 
   def global?
-    type == GlobalAffiliate.name
+    self.class.name == GlobalAffiliate.name
   end
 
   def total_cents_earned_formatted
