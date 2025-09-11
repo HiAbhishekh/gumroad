@@ -201,30 +201,32 @@ const UpsellsPage = (props: {
       pages={props.pages}
       actions={
         <>
-          <Popover
-            open={isSearchPopoverOpen}
-            onToggle={setIsSearchPopoverOpen}
-            aria-label="Search"
-            trigger={
-              <div className="button">
+          {upsells.length > 0 && (
+            <Popover
+              open={isSearchPopoverOpen}
+              onToggle={setIsSearchPopoverOpen}
+              aria-label="Search"
+              trigger={
+                <div className="button">
+                  <Icon name="solid-search" />
+                </div>
+              }
+            >
+              <div className="input">
                 <Icon name="solid-search" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery ?? ""}
+                  onChange={(evt) => {
+                    setSearchQuery(evt.target.value);
+                    debouncedLoadUpsells();
+                  }}
+                />
               </div>
-            }
-          >
-            <div className="input">
-              <Icon name="solid-search" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Search"
-                value={searchQuery ?? ""}
-                onChange={(evt) => {
-                  setSearchQuery(evt.target.value);
-                  debouncedLoadUpsells();
-                }}
-              />
-            </div>
-          </Popover>
+            </Popover>
+          )}
           <Button color="accent" onClick={() => setView("create")} disabled={isReadOnly}>
             New upsell
           </Button>
@@ -301,8 +303,8 @@ const UpsellsPage = (props: {
             <Button color="accent" onClick={() => setView("create")}>
               New upsell
             </Button>
-            <a href="#" data-helper-prompt="What are upsells and how can I use them to increase my revenue?">
-              Learn more about upsells.
+            <a href="/help/article/331-creating-upsells" target="_blank" rel="noreferrer">
+              Learn more about upsells
             </a>
           </div>
         )}
@@ -645,7 +647,7 @@ const Form = ({
           <section>
             <p>
               When a customer clicks "Pay", offer a version upgrade or another product with or without a discount.{" "}
-              <a href="#" data-helper-prompt="How do I create upsells?">
+              <a href="/help/article/331-creating-upsells" target="_blank" rel="noreferrer">
                 Learn more
               </a>
             </p>
@@ -910,6 +912,10 @@ const Form = ({
               }}
               accept={() => {}}
               decline={() => {}}
+              cart={{
+                items: [previewCartItem],
+                discountCodes: [],
+              }}
             />
           ) : (
             <UpsellModal
