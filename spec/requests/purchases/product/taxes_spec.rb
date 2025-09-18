@@ -2,7 +2,7 @@
 
 require("spec_helper")
 
-describe("Product Page - Tax Scenarios", type: :feature, js: true) do
+describe("Product Page - Tax Scenarios", type: :system, js: true) do
   describe "sales tax", shipping: true do
     before do
       @creator = create(:user_with_compliance_info)
@@ -13,7 +13,7 @@ describe("Product Page - Tax Scenarios", type: :feature, js: true) do
     it "calls the tax endpoint for a real zip code that doesn't show in the enterprise zip codes database" do
       visit("/l/#{@product.unique_permalink}")
       add_to_cart(@product)
-      check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144", country: "US" }) do
+      check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144", country: "US" }, should_verify_address: true) do
         expect(page).to have_text("Subtotal US$500", normalize_ws: true)
         expect(page).to have_text("Sales tax US$33.50", normalize_ws: true)
       end
@@ -52,7 +52,7 @@ describe("Product Page - Tax Scenarios", type: :feature, js: true) do
 
         visit("/l/#{@product.unique_permalink}")
         add_to_cart(@product, option: "type 1")
-        check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" }) do
+        check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" }, should_verify_address: true) do
           expect(page).to have_text("Subtotal US$501.50", normalize_ws: true)
           expect(page).to have_text("Sales tax US$33.60", normalize_ws: true)
           expect(page).to have_text("Total US$535.10", normalize_ws: true)
@@ -85,7 +85,7 @@ describe("Product Page - Tax Scenarios", type: :feature, js: true) do
 
         visit "/l/#{@product.unique_permalink}/taxoffer"
         add_to_cart(@product, offer_code:)
-        check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" }) do
+        check_out(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" }, should_verify_address: true) do
           expect(page).to have_text("$500")
           expect(page).to have_text("Subtotal US$500", normalize_ws: true)
           expect(page).to have_text("Sales tax US$26.80", normalize_ws: true)
@@ -115,25 +115,48 @@ describe("Product Page - Tax Scenarios", type: :feature, js: true) do
         expect(new_purchase.purchase_sales_tax_info.postal_code).to eq("85144")
       end
 
-      it "re-evaluates price and tax when a tip is added" do
-        @product.user.update!(tipping_enabled: true)
+    it "re-evaluates price and tax when a tip is added" do
+      @product.user.update!(tipping_enabled: true)
 
-        visit @product.long_url
-        add_to_cart(@product)
-        fill_checkout_form(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" })
-        expect(page).to have_text("Subtotal US$500", normalize_ws: true)
-        expect(page).to_not have_text("Tip US$", normalize_ws: true)
-        expect(page).to have_text("Sales tax US$33.50", normalize_ws: true)
-        expect(page).to have_text("Total US$533.50", normalize_ws: true)
+      allow_any_instance_of(SalesTaxCalculator).to receive(:calculate_with_lookup_table) do |instance|
+        OpenStruct.new(
+          combined_rate: BigDecimal("0.067"),
+          country: Compliance::Countries::USA.alpha2,
+          state: "AZ",
+          county: "Pinal",
+          city: "San Tan Valley"
+        )
+      end
 
-        choose "10%"
-        wait_for_ajax
-        expect(page).to have_text("Subtotal US$500", normalize_ws: true)
-        expect(page).to have_text("Tip US$50", normalize_ws: true)
-        expect(page).to have_text("Sales tax US$36.85", normalize_ws: true)
-        expect(page).to have_text("Total US$586.85", normalize_ws: true)
+      visit @product.long_url
+      add_to_cart(@product)
+      fill_checkout_form(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" })
+      
+      # Wait for the page to stabilize before checking text
+      wait_for_ajax
+      
+      # Verify initial state (no tip)
+      expect(page).to have_text("Subtotal US$500", normalize_ws: true)
+      expect(page).to_not have_text("Tip US$", normalize_ws: true)
+      expect(page).to have_text("Sales tax US$33.50", normalize_ws: true)
+      expect(page).to have_text("Total US$533.50", normalize_ws: true)
+
+      # Add 10% tip
+      choose "10%"
+      wait_for_ajax
+      
+      # Verify state after adding tip
+      expect(page).to have_text("Subtotal US$500", normalize_ws: true)
+      expect(page).to have_text("Tip US$50", normalize_ws: true)
+      expect(page).to have_text("Sales tax US$36.85", normalize_ws: true)
+      expect(page).to have_text("Total US$586.85", normalize_ws: true)
 
         click_on "Pay"
+        if page.has_text?("We are unable to verify your shipping address. Is your address correct?", wait: 5)
+          click_on "Yes, it is"
+        elsif page.has_text?("You entered this address:", wait: 5) && page.has_text?("We recommend using this format:", wait: 5)
+          click_on "No, continue"
+        end
         expect(page).to have_alert(text: "Your purchase was successful!")
 
         purchase = Purchase.last
@@ -153,6 +176,46 @@ describe("Product Page - Tax Scenarios", type: :feature, js: true) do
         expect(purchase.purchase_sales_tax_info.card_country_code).to eq(Compliance::Countries::USA.alpha2)
         expect(purchase.purchase_sales_tax_info.postal_code).to eq("85144")
         expect(purchase.tip.value_cents).to eq(50_00)
+      end
+
+      it "re-evaluates price and tax when a tip is removed" do
+        @product.user.update!(tipping_enabled: true)
+  
+        allow_any_instance_of(SalesTaxCalculator).to receive(:calculate_with_lookup_table) do |instance|
+          OpenStruct.new(
+            combined_rate: BigDecimal("0.067"),
+            country: Compliance::Countries::USA.alpha2,
+            state: "AZ",
+            county: "Pinal",
+            city: "San Tan Valley"
+          )
+        end
+  
+        visit @product.long_url
+        add_to_cart(@product)
+        fill_checkout_form(@product, address: { street: "3029 W Sherman Rd", city: "San Tan Valley", state: "AZ", zip_code: "85144" })
+        
+        # Wait for the page to stabilize
+        wait_for_ajax
+        
+        expect(page).to have_text("Subtotal US$500", normalize_ws: true)
+        expect(page).to_not have_text("Tip US$", normalize_ws: true)
+        expect(page).to have_text("Sales tax US$33.50", normalize_ws: true)
+        expect(page).to have_text("Total US$533.50", normalize_ws: true)
+  
+        choose "10%"
+        wait_for_ajax
+        expect(page).to have_text("Subtotal US$500", normalize_ws: true)
+        expect(page).to have_text("Tip US$50", normalize_ws: true)
+        expect(page).to have_text("Sales tax US$36.85", normalize_ws: true)
+        expect(page).to have_text("Total US$586.85", normalize_ws: true)
+  
+        choose "0%"
+        wait_for_ajax
+        expect(page).to have_text("Subtotal US$500", normalize_ws: true)
+        expect(page).to_not have_text("Tip US$", normalize_ws: true)
+        expect(page).to have_text("Sales tax US$33.50", normalize_ws: true)
+        expect(page).to have_text("Total US$533.50", normalize_ws: true)
       end
     end
   end
