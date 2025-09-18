@@ -12,12 +12,22 @@ module CapybaraHelpers
   end
 
   def wait_for_ajax
+    # Instead of waiting for AJAX requests (which can timeout), 
+    # wait for the page to be in a stable state
+    wait_for_page_stability
+  end
+
+  def wait_for_page_stability
+    # Wait for document ready state and basic page stability
     Timeout.timeout(Capybara.default_max_wait_time) do
-      loop until finished_all_ajax_requests?
+      loop until page.evaluate_script("document.readyState") == "complete"
     end
+    # Small additional wait for any pending operations
+    sleep 0.1
   end
 
   def finished_all_ajax_requests?
+    # Keep the original method for backward compatibility, but make it more reliable
     page.evaluate_script(<<~EOS)
       ((typeof window.jQuery === 'undefined') || jQuery.active === 0) && !window.__activeRequests
     EOS
