@@ -31,10 +31,10 @@ describe("Embed scenario", type: :request) do
     affiliate_url = direct_affiliate.referral_url_for_product(pwyw_product)
     expect(affiliate_url).to be_present
     expect(affiliate_url).to include("gumroad.com")
-    
+
     embed_url = create_embed_page(pwyw_product, url: "#{affiliate_url}?email=john@test.com", gumroad_params: "&price=75", outbound: false)
     expect(embed_url).to be_present
-    
+
     expect(direct_affiliate.affiliate_basis_points).to eq(1000)
     expected_commission = (7500 * 1000) / 10000
     expect(expected_commission).to eq(750)
@@ -48,10 +48,10 @@ describe("Embed scenario", type: :request) do
     affiliate_url = direct_affiliate.referral_url_for_product(pwyw_product)
     expect(affiliate_url).to be_present
     expect(affiliate_url).to include("gumroad.com")
-    
+
     embed_url = create_embed_page(pwyw_product, url: "#{affiliate_url}?", outbound: false)
     expect(embed_url).to be_present
-    
+
     expect(direct_affiliate.affiliate_basis_points).to eq(1000)
     expected_commission = (7500 * 1000) / 10000
     expect(expected_commission).to eq(750)
@@ -109,10 +109,10 @@ describe("Embed scenario", type: :request) do
       affiliate_url = direct_affiliate.referral_url_for_product(product)
       expect(affiliate_url).to be_present
       expect(affiliate_url).to include("gumroad.com")
-      
+
       embed_url = create_embed_page(product, url: affiliate_url, outbound: false)
       expect(embed_url).to be_present
-      
+
       expect(direct_affiliate.affiliate_basis_points).to eq(1000)
       expected_commission = (product.price_cents * 1000) / 10000
       expect(expected_commission).to eq(750)
