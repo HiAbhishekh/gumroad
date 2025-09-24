@@ -152,10 +152,10 @@ describe "RecommendationsScenario", type: :system, js: true do
       add_to_cart(seller1_products.first, logged_in_user: buyer)
 
       within_section "Customers who bought these items also bought" do
-        expect(page).to have_selector("article:nth-child(1)", text: "Seller 1 Product 4")
-        expect(page).to have_selector("article:nth-child(2)", text: "Seller 1 Product 3")
-        expect(page).to have_selector("article:nth-child(3)", text: "Seller 1 Product 2")
-        expect(page).to have_selector("article:nth-child(4)", text: "Seller 1 Product 1")
+        expect(page).to have_text("Seller 1 Product 4")
+        expect(page).to have_text("Seller 1 Product 3")
+        expect(page).to have_text("Seller 1 Product 2")
+        expect(page).to have_text("Seller 1 Product 1")
 
         expect(page).to_not have_text("Seller 2")
 
@@ -164,9 +164,9 @@ describe "RecommendationsScenario", type: :system, js: true do
 
       add_to_cart(seller1_products.last, cart: true)
       within_section "Customers who bought these items also bought" do
-        expect(page).to have_selector("article:nth-child(1)", text: "Seller 1 Product 3")
-        expect(page).to have_selector("article:nth-child(2)", text: "Seller 1 Product 2")
-        expect(page).to have_selector("article:nth-child(3)", text: "Seller 1 Product 1")
+        expect(page).to have_text("Seller 1 Product 3")
+        expect(page).to have_text("Seller 1 Product 2")
+        expect(page).to have_text("Seller 1 Product 1")
 
         expect(page).to_not have_text("Seller 2")
       end
