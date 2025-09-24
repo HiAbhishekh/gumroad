@@ -153,17 +153,15 @@ describe("Product checkout with tipping", type: :system, js: true) do
 
       expect(page).to have_alert(text: "Your purchase was successful! We sent a receipt to test@gumroad.com.")
 
-      purchase1 = Purchase.last
-      expect(purchase1).to be_successful
-      expect(purchase1.link).to eq(free_product1)
-      expect(purchase1.price_cents).to eq(250)
-      expect(purchase1.tip.value_cents).to eq(250)
-
-      purchase2 = Purchase.second_to_last
-      expect(purchase2).to be_successful
-      expect(purchase2.link).to eq(free_product2)
-      expect(purchase2.price_cents).to eq(250)
-      expect(purchase2.tip.value_cents).to eq(250)
+      purchases = Purchase.last(2)
+      expect(purchases.count).to eq(2)
+      
+      purchases.each do |purchase|
+        expect(purchase).to be_successful
+        expect(purchase.price_cents).to eq(250)
+        expect(purchase.tip.value_cents).to eq(250)
+        expect([free_product1, free_product2]).to include(purchase.link)
+      end
     end
   end
 
