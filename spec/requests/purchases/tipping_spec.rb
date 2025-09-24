@@ -159,6 +159,7 @@ describe("Product checkout with tipping", type: :system, js: true) do
       purchases.each do |purchase|
         expect(purchase).to be_successful
         expect(purchase.price_cents).to eq(250)
+        expect(purchase.tip).not_to be_nil
         expect(purchase.tip.value_cents).to eq(250)
         expect([free_product1, free_product2]).to include(purchase.link)
       end
