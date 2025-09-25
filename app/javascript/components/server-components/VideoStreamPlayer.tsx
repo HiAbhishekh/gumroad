@@ -146,6 +146,19 @@ export const VideoStreamPlayer = ({
         }
         isInitialSeekDone = true;
       });
+
+      player.on("error", (error) => {
+        if (error.code === 403 || error.code === 410) {
+          const currentPosition = player.getPosition();
+          const currentItem = player.getPlaylistItem();
+          
+          player.load([currentItem]);
+          
+          player.once("ready", () => {
+            player.seek(currentPosition);
+          });
+        }
+      });
     };
 
     void createPlayer();
