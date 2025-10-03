@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddDescriptionToBaseVariants < ActiveRecord::Migration
+class AddDescriptionToBaseVariants < ActiveRecord::Migration[7.1]
   def up
     add_column :base_variants, :description, :string, limit: 255
   end

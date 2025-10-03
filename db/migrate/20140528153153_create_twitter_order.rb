@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateTwitterOrder < ActiveRecord::Migration
+class CreateTwitterOrder < ActiveRecord::Migration[7.1]
   def change
     create_table :twitter_orders do |t|
       t.references :purchase

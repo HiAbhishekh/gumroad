@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
-class PriceCents < ActiveRecord::Migration
+class PriceCents < ActiveRecord::Migration[7.1]
   def up
     add_column :links, :price_cents, :integer
     add_column :purchases, :price_cents, :integer
-    Link.find_each do |link|
-      link.price_cents = link.price * 100
-      link.save(validate: false)
-    end
-
-    Purchase.find_each do |purchase|
-      purchase.price_cents = purchase.price * 100
-      purchase.save(validate: false)
-    end
+    
+    # Use raw SQL to avoid model loading issues
+    execute "UPDATE links SET price_cents = price * 100 WHERE price IS NOT NULL"
+    execute "UPDATE purchases SET price_cents = price * 100 WHERE price IS NOT NULL"
   end
 
   def down

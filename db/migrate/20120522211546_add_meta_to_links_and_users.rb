@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddMetaToLinksAndUsers < ActiveRecord::Migration
+class AddMetaToLinksAndUsers < ActiveRecord::Migration[7.1]
   def up
     add_column :links, :preview_meta, :string
     add_column :links, :attachment_meta, :string

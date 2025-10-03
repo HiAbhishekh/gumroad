@@ -31,8 +31,14 @@ FactoryBot.define do
         user.balances.destroy_all
         create(:balance, user:, amount_cents: evaluator.unpaid_balance_cents)
       end
-      user.update_column(:flags, user.flags ^ User.flag_mapping["flags"][:tipping_enabled]) unless evaluator.tipping_enabled
-      user.update_column(:flags, user.flags ^ User.flag_mapping["flags"][:discover_boost_enabled]) unless evaluator.discover_boost_enabled
+      if user.persisted?
+        user.update_column(:flags, user.flags ^ (1 << (43 - 1))) unless evaluator.tipping_enabled
+        user.update_column(:flags, user.flags ^ (1 << (45 - 1))) unless evaluator.discover_boost_enabled
+      else
+        # For new records, set the flags directly
+        user.flags = (user.flags || 0) ^ (1 << (43 - 1)) unless evaluator.tipping_enabled
+        user.flags = (user.flags || 0) ^ (1 << (45 - 1)) unless evaluator.discover_boost_enabled
+      end
     end
 
     factory :buyer_user do

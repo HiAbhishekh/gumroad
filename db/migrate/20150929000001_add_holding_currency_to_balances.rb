@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddHoldingCurrencyToBalances < ActiveRecord::Migration
+class AddHoldingCurrencyToBalances < ActiveRecord::Migration[7.1]
   def up
     add_column :balances, :currency, :string, default: "usd"
     add_column :balances, :holding_currency, :string, default: "usd"

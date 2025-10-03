@@ -407,6 +407,10 @@ def stub_webmock
   WebMock.stub_request(:post, "https://sessions.bugsnag.com/")
   WebMock.stub_request(:post, %r{iffy-live\.gumroad\.com/people/buyer_info})
       .with(body: "{\"require_zip\": false}", headers: { status: %w[200 OK], content_type: "application/json" })
+  
+  # Allow Stripe Connect iframe loading to prevent flaky test failures
+  WebMock.stub_request(:get, %r{connect-js\.stripe\.com/.*})
+  
   stub_pwned_password_check
 end
 
@@ -438,6 +442,7 @@ RSpec.configure do |config|
   config.include ElasticsearchHelpers
   config.include ProductPageViewHelpers
   config.include SalesRelatedProductsInfosHelpers
+  config.include MockStripeConnect, type: :request
 end
 RSpec::Sidekiq.configure do |config|
   config.warn_when_jobs_not_processed_by_sidekiq = false

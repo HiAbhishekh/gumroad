@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddHistoricalData < ActiveRecord::Migration
+class AddHistoricalData < ActiveRecord::Migration[7.1]
   def up
     Purchase.update_all(displayed_price_currency_type: "usd")
     Purchase.update_all("displayed_price_cents = price_cents")

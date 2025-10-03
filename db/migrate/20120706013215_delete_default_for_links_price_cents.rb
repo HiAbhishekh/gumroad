@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DeleteDefaultForLinksPriceCents < ActiveRecord::Migration
+class DeleteDefaultForLinksPriceCents < ActiveRecord::Migration[7.1]
   def up
     change_column_default :links, :price_cents, nil
   end

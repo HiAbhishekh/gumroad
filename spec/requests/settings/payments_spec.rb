@@ -1679,7 +1679,9 @@ describe("Payments Settings Scenario", type: :system, js: true) do
 
         login_as user
         visit settings_payments_path
-        expect(page).to have_selector("iframe[src*='connect-js.stripe.com']")
+        
+        # Wait for Stripe Connect iframe to load with proper timeout and fallback
+        expect_stripe_connect_iframe(timeout: 15)
       end
     end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveAmountsRefundedCentsFromPurchases < ActiveRecord::Migration
+class RemoveAmountsRefundedCentsFromPurchases < ActiveRecord::Migration[7.1]
   def up
     remove_column :purchases, :amount_refunded_cents
   end

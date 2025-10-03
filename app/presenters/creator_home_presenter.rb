@@ -27,9 +27,18 @@ class CreatorHomePresenter
     }
 
     today = Time.now.in_time_zone(seller.timezone).to_date
-    analytics = CreatorAnalytics::CachingProxy.new(seller).data_for_dates(today - 30, today)
-    top_sales_data = analytics[:by_date][:sales]
-      .sort_by { |_, sales| -sales&.sum }.take(BALANCE_ITEMS_LIMIT)
+    
+    # Handle missing Elasticsearch indices gracefully
+    begin
+      analytics = CreatorAnalytics::CachingProxy.new(seller).data_for_dates(today - 30, today)
+      top_sales_data = analytics[:by_date][:sales]
+        .sort_by { |_, sales| -sales&.sum }.take(BALANCE_ITEMS_LIMIT)
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      # Elasticsearch indices not available - use empty analytics data
+      Rails.logger.warn "Elasticsearch indices not available: #{e.message}"
+      analytics = { by_date: { sales: [], totals: {} } }
+      top_sales_data = []
+    end
 
     # Preload products with thumbnail attachments to avoid N+1 queries
     product_permalinks = top_sales_data.map(&:first)
@@ -50,9 +59,9 @@ class CreatorHomePresenter
         "sales" => product.successful_sales_count,
         "revenue" => product.total_usd_cents,
         "visits" => product.number_of_views,
-        "today" => analytics[:by_date][:totals][product.unique_permalink]&.last || 0,
-        "last_7" => analytics[:by_date][:totals][product.unique_permalink]&.last(7)&.sum || 0,
-        "last_30" => analytics[:by_date][:totals][product.unique_permalink]&.sum || 0,
+        "today" => analytics[:by_date][:totals]&.dig(product.unique_permalink)&.last || 0,
+        "last_7" => analytics[:by_date][:totals]&.dig(product.unique_permalink)&.last(7)&.sum || 0,
+        "last_30" => analytics[:by_date][:totals]&.dig(product.unique_permalink)&.sum || 0,
       }
     end.compact
     balances = UserBalanceStatsService.new(user: seller).fetch[:overview]
@@ -134,27 +143,33 @@ class CreatorHomePresenter
     #   }
     # }
     def followers_activity_items
-      results = ConfirmedFollowerEvent.search(
-        query: { bool: { filter: [{ term: { followed_user_id: seller.id } }] } },
-        sort: [{ timestamp: { order: :desc } }],
-        size: ACTIVITY_ITEMS_LIMIT,
-        _source: [:name, :email, :timestamp, :follower_user_id],
-      ).map { |result| result["_source"] }
+      begin
+        results = ConfirmedFollowerEvent.search(
+          query: { bool: { filter: [{ term: { followed_user_id: seller.id } }] } },
+          sort: [{ timestamp: { order: :desc } }],
+          size: ACTIVITY_ITEMS_LIMIT,
+          _source: [:name, :email, :timestamp, :follower_user_id],
+        ).map { |result| result["_source"] }
 
-      # Collect followers' users in one DB query
-      followers_user_ids = results.map { |result| result["follower_user_id"] }.compact.uniq
-      followers_users_by_id = User.where(id: followers_user_ids).select(:id, :name, :timezone).index_by(&:id)
+        # Collect followers' users in one DB query
+        followers_user_ids = results.map { |result| result["follower_user_id"] }.compact.uniq
+        followers_users_by_id = User.where(id: followers_user_ids).select(:id, :name, :timezone).index_by(&:id)
 
-      results.map do |result|
-        follower_user = followers_users_by_id[result["follower_user_id"]]
-        {
-          "type" => "follower_#{result["name"]}",
-          "timestamp" => result["timestamp"],
-          "details" => {
-            "email" => result["email"],
-            "name" => follower_user&.name,
+        results.map do |result|
+          follower_user = followers_users_by_id[result["follower_user_id"]]
+          {
+            "type" => "follower_#{result["name"]}",
+            "timestamp" => result["timestamp"],
+            "details" => {
+              "email" => result["email"],
+              "name" => follower_user&.name,
+            }
           }
-        }
+        end
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+        # Elasticsearch indices not available - return empty followers activity
+        Rails.logger.warn "Elasticsearch indices not available for followers activity: #{e.message}"
+        []
       end
     end
 end

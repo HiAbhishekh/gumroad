@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddFacebookAccessTokenToUsers < ActiveRecord::Migration
+class AddFacebookAccessTokenToUsers < ActiveRecord::Migration[7.1]
   def change
     add_column :users, :facebook_access_token, :string
   end

@@ -4,7 +4,7 @@ class Affiliate < ApplicationRecord
   include ExternalId
   include Deletable
   include CurrencyHelper
-  include FlagShihTzu
+  include ModernFlags
 
   include AudienceMember, Cookies
 

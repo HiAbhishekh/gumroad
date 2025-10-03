@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-class ChangeBalance < ActiveRecord::Migration
+class ChangeBalance < ActiveRecord::Migration[7.1]
   def up
     add_column :links, :balance_cents, :integer
-    Link.find_each do |link|
-      link.balance_cents = link.balance * 100
-      link.save(validation: false)
-    end
+    
+    # Use raw SQL to avoid model loading issues
+    execute "UPDATE links SET balance_cents = balance * 100 WHERE balance IS NOT NULL"
   end
 
   def down

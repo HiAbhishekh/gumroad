@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveSessionIdAsIndexOnPurchases < ActiveRecord::Migration
+class RemoveSessionIdAsIndexOnPurchases < ActiveRecord::Migration[7.1]
   def up
     remove_index :purchases, :session_id
   end

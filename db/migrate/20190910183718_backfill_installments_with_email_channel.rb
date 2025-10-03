@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class BackfillInstallmentsWithEmailChannel < ActiveRecord::Migration
+class BackfillInstallmentsWithEmailChannel < ActiveRecord::Migration[7.1]
   def up
     Installment.find_in_batches do |installments|
       installments.each do |installment|

@@ -199,7 +199,7 @@ function computeTipForFreeCart(state: State, permalink?: string): number {
 
 export function getTotalPrice(state: State) {
   return state.surcharges.type === "loaded"
-    ? state.surcharges.result.subtotal + state.surcharges.result.tax_cents + state.surcharges.result.shipping_rate_cents
+    ? state.surcharges.result.subtotal + state.surcharges.result.tax_cents + state.surcharges.result.shipping_rate_cents + computeTip(state)
     : null;
 }
 

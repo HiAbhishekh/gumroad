@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddFlagsToSubscriptions < ActiveRecord::Migration
+class AddFlagsToSubscriptions < ActiveRecord::Migration[7.1]
   def change
     add_column :subscriptions, :flags, :integer, default: 0, null: false
   end

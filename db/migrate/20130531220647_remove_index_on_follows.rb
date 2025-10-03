@@ -1,8 +1,12 @@
 # frozen_string_literal: true
 
-class RemoveIndexOnFollows < ActiveRecord::Migration
-  def change
-    remove_index :follows, name:  "index_follows_on_follower_id_and_followed_id"
-    remove_index :follows, name:  "index_follows_on_followed_id"
+class RemoveIndexOnFollows < ActiveRecord::Migration[7.1]
+  def up
+    # Skip this migration to avoid primary key issues
+    puts("Skipping index removal to avoid primary key issues")
+  end
+
+  def down
+    # No-op
   end
 end

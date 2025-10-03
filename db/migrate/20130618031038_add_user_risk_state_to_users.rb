@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddUserRiskStateToUsers < ActiveRecord::Migration
+class AddUserRiskStateToUsers < ActiveRecord::Migration[7.1]
   def up
     add_column :users, :user_risk_state, :string
   end

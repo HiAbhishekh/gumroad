@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddTosViolationReasonToUsers < ActiveRecord::Migration
+class AddTosViolationReasonToUsers < ActiveRecord::Migration[7.1]
   def up
     add_column :users, :tos_violation_reason, :string
   end

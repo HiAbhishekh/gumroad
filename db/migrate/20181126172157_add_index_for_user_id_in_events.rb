@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddIndexForUserIdInEvents < ActiveRecord::Migration
+class AddIndexForUserIdInEvents < ActiveRecord::Migration[7.1]
   def change
     add_index :events, :user_id
   end

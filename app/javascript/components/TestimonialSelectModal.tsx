@@ -115,8 +115,6 @@ export const TestimonialSelectModal = ({
           <div className="flex items-center justify-center">
             <LoadingSpinner width="2em" />
           </div>
-        ) : !isLoading && state.reviews.length === 0 ? (
-          <p>No reviews with text or video yet.</p>
         ) : (
           <>
             <div className="flex flex-row items-center gap-2">
@@ -130,21 +128,29 @@ export const TestimonialSelectModal = ({
               <p>Select all</p>
             </div>
             <section className="paragraphs" style={{ marginTop: "var(--spacer-2)" }}>
-              {state.reviews.map((review) => (
-                <SelectableReviewCard
-                  key={review.id}
-                  review={review}
-                  isSelected={selectedReviewIds.includes(review.id)}
-                  onSelect={() => toggleReviewSelection(review.id)}
-                />
-              ))}
-              {hasMorePages ? (
-                <div className="mt-4">
-                  <Button onClick={handleLoadMore} disabled={isLoading}>
-                    {isLoading ? "Loading..." : "Load more"}
-                  </Button>
+              {state.reviews.length === 0 && !isLoading ? (
+                <div className="text-center py-8 text-gray-500">
+                  No reviews with text or video yet.
                 </div>
-              ) : null}
+              ) : (
+                <>
+                  {state.reviews.map((review) => (
+                    <SelectableReviewCard
+                      key={review.id}
+                      review={review}
+                      isSelected={selectedReviewIds.includes(review.id)}
+                      onSelect={() => toggleReviewSelection(review.id)}
+                    />
+                  ))}
+                  {hasMorePages ? (
+                    <div className="mt-4">
+                      <Button onClick={handleLoadMore} disabled={isLoading}>
+                        {isLoading ? "Loading..." : "Load more"}
+                      </Button>
+                    </div>
+                  ) : null}
+                </>
+              )}
             </section>
           </>
         )}

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddAdditionalKycDataToUserComplianceInfo < ActiveRecord::Migration
+class AddAdditionalKycDataToUserComplianceInfo < ActiveRecord::Migration[7.1]
   def change
     add_column :user_compliance_info, :business_name, :string
     add_column :user_compliance_info, :business_street_address, :string

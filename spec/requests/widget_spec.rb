@@ -81,7 +81,9 @@ describe "Widget Page scenario", js: true, type: :system do
         copy_button = find_button("Copy embed code")
         expect(copy_button).not_to have_tooltip(text: "Copy to Clipboard")
         copy_button.hover
-        expect(copy_button).to have_tooltip(text: "Copy to Clipboard")
+        
+        # Wait for tooltip to appear with proper timeout
+        expect(copy_button).to have_tooltip(text: "Copy to Clipboard", wait: 5)
 
         copy_button.click
         expect(page).to have_content("Copied!")
@@ -92,7 +94,9 @@ describe "Widget Page scenario", js: true, type: :system do
         expect(page).not_to have_content("Copied!")
 
         copy_button.hover
-        expect(copy_button).to have_tooltip(text: "Copy to Clipboard")
+        
+        # Wait for tooltip to appear with proper timeout
+        expect(copy_button).to have_tooltip(text: "Copy to Clipboard", wait: 5)
       end
     end
 

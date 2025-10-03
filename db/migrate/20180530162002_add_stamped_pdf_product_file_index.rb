@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddStampedPdfProductFileIndex < ActiveRecord::Migration
+class AddStampedPdfProductFileIndex < ActiveRecord::Migration[7.1]
   def change
     add_index :stamped_pdfs, :product_file_id
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveBalanceCents < ActiveRecord::Migration
+class RemoveBalanceCents < ActiveRecord::Migration[7.1]
   def up
     remove_column :users, :balance
   end

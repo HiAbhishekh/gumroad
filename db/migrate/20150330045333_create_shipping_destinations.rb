@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateShippingDestinations < ActiveRecord::Migration
+class CreateShippingDestinations < ActiveRecord::Migration[7.1]
   def change
     create_table :shipping_destinations do |t|
       t.integer :link_id

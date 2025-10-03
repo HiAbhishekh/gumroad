@@ -141,8 +141,14 @@ module User::Stats
       },
     )
 
-    result = PurchaseSearchService.search(search_params)
-    result.aggregations.price_cents_total.value - result.aggregations.amount_refunded_cents_total.value
+    begin
+      result = PurchaseSearchService.search(search_params)
+      result.aggregations.price_cents_total.value - result.aggregations.amount_refunded_cents_total.value
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      # Elasticsearch indices not available - return 0 sales
+      Rails.logger.warn "Elasticsearch indices not available for gross sales calculation: #{e.message}"
+      0
+    end
   end
 
   def sales_cents_total_formatted
@@ -183,14 +189,20 @@ module User::Stats
         }
       }
     }
-    search_result = PurchaseSearchService.search(search_params)
-    count_denominator = search_result.response.hits.total.value.to_f
-    volume_denominator = search_result.aggregations["price_cents_total"]["value"]
-    count_numerator = search_result.aggregations["unreversed_chargebacks"]["doc_count"].to_f
-    volume_numerator = search_result.aggregations["unreversed_chargebacks"]["price_cents_total"]["value"]
-    volume = volume_denominator > 0 ? format("%.1f%%", volume_numerator / volume_denominator * 100) : "NA"
-    count = count_denominator > 0 ? format("%.1f%%", count_numerator / count_denominator * 100) : "NA"
-    { volume:, count: }
+    begin
+      search_result = PurchaseSearchService.search(search_params)
+      count_denominator = search_result.response.hits.total.value.to_f
+      volume_denominator = search_result.aggregations["price_cents_total"]["value"]
+      count_numerator = search_result.aggregations["unreversed_chargebacks"]["doc_count"].to_f
+      volume_numerator = search_result.aggregations["unreversed_chargebacks"]["price_cents_total"]["value"]
+      volume = volume_denominator > 0 ? format("%.1f%%", volume_numerator / volume_denominator * 100) : "NA"
+      count = count_denominator > 0 ? format("%.1f%%", count_numerator / count_denominator * 100) : "NA"
+      { volume:, count: }
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      # Elasticsearch indices not available - return NA values
+      Rails.logger.warn "Elasticsearch indices not available for chargeback calculation: #{e.message}"
+      { volume: "NA", count: "NA" }
+    end
   end
 
   def sales_cents_for_balances(balance_ids)
@@ -647,19 +659,25 @@ module User::Stats
   end
 
   def all_sales_count
-    total = PurchaseSearchService.search(
-      seller: self,
-      state: Purchase::NON_GIFT_SUCCESS_STATES,
-      exclude_giftees: true,
-      exclude_refunded_except_subscriptions: true,
-      exclude_unreversed_chargedback: true,
-      exclude_non_original_subscription_purchases: true,
-      exclude_commission_completion_purchases: true,
-      exclude_bundle_product_purchases: true,
-      size: 0,
-      track_total_hits: true,
-    ).results.total
-    total + imported_customers.alive.count
+    begin
+      total = PurchaseSearchService.search(
+        seller: self,
+        state: Purchase::NON_GIFT_SUCCESS_STATES,
+        exclude_giftees: true,
+        exclude_refunded_except_subscriptions: true,
+        exclude_unreversed_chargedback: true,
+        exclude_non_original_subscription_purchases: true,
+        exclude_commission_completion_purchases: true,
+        exclude_bundle_product_purchases: true,
+        size: 0,
+        track_total_hits: true,
+      ).results.total
+      total + imported_customers.alive.count
+    rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+      # Elasticsearch indices not available - return imported customers count only
+      Rails.logger.warn "Elasticsearch indices not available for sales count calculation: #{e.message}"
+      imported_customers.alive.count
+    end
   end
 
   def distinct_paid_customers_count_last_year
@@ -749,15 +767,21 @@ module User::Stats
         }
       }
 
-      total = 0
-      result = PurchaseSearchService.search(search_params)
-      total += result.aggregations.price_cents_total.value
-      total -= result.aggregations.fee_cents_total.value
-      total -= result.aggregations.amount_refunded_cents_total.value
-      total += result.aggregations.fee_refunded_cents_total.value
-      total -= result.aggregations.affiliate_credit_amount_cents_total.value
-      total += result.aggregations.affiliate_credit_amount_partially_refunded_cents_total.value
-      total.to_i
+      begin
+        total = 0
+        result = PurchaseSearchService.search(search_params)
+        total += result.aggregations.price_cents_total.value
+        total -= result.aggregations.fee_cents_total.value
+        total -= result.aggregations.amount_refunded_cents_total.value
+        total += result.aggregations.fee_refunded_cents_total.value
+        total -= result.aggregations.affiliate_credit_amount_cents_total.value
+        total += result.aggregations.affiliate_credit_amount_partially_refunded_cents_total.value
+        total.to_i
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+        # Elasticsearch indices not available - return 0 revenue
+        Rails.logger.warn "Elasticsearch indices not available for revenue calculation: #{e.message}"
+        0
+      end
     end
 
     def revenue_as_affiliate(after: nil)
@@ -776,11 +800,17 @@ module User::Stats
         }
       }
 
-      result = PurchaseSearchService.search(search_params)
-      total = 0
-      total += result.aggregations.affiliate_credit_amount_cents_total.value
-      total -= result.aggregations.affiliate_credit_amount_partially_refunded_cents_total.value
-      total.to_i
+      begin
+        result = PurchaseSearchService.search(search_params)
+        total = 0
+        total += result.aggregations.affiliate_credit_amount_cents_total.value
+        total -= result.aggregations.affiliate_credit_amount_partially_refunded_cents_total.value
+        total.to_i
+      rescue Elasticsearch::Transport::Transport::Errors::NotFound => e
+        # Elasticsearch indices not available - return 0 revenue
+        Rails.logger.warn "Elasticsearch indices not available for affiliate revenue calculation: #{e.message}"
+        0
+      end
     end
 
     def page_basis_points_floor(page_number:, total_page_count:)

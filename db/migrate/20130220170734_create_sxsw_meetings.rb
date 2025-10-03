@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateSxswMeetings < ActiveRecord::Migration
+class CreateSxswMeetings < ActiveRecord::Migration[7.1]
   def change
     create_table :sxsw_meetings do |t|
       t.string :email

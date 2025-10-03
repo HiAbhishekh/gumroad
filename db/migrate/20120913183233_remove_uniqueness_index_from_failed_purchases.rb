@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveUniquenessIndexFromFailedPurchases < ActiveRecord::Migration
+class RemoveUniquenessIndexFromFailedPurchases < ActiveRecord::Migration[7.1]
   def up
     remove_index :failed_purchases, name: "by_link_and_stripe_fingerprint"
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateBalances < ActiveRecord::Migration
+class CreateBalances < ActiveRecord::Migration[7.1]
   def change
     create_table :balances do |t|
       t.references :user

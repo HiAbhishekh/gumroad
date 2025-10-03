@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddTaxFieldsToRefunds < ActiveRecord::Migration
+class AddTaxFieldsToRefunds < ActiveRecord::Migration[7.1]
   def change
     add_column :refunds, :creator_tax_cents, :integer
     add_column :refunds, :gumroad_tax_cents, :integer

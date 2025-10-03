@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class GenerateLicensesForExistingCustomers < ActiveRecord::Migration
+class GenerateLicensesForExistingCustomers < ActiveRecord::Migration[7.1]
   def change
     # Commented out as it is taking too long to run on production.
 

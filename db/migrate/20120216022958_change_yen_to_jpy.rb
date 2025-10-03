@@ -1,49 +1,17 @@
 # frozen_string_literal: true
 
-class ChangeYenToJpy < ActiveRecord::Migration
+class ChangeYenToJpy < ActiveRecord::Migration[7.1]
   def up
-    User.find_each do |user|
-      if user.currency_type == "yen"
-        user.currency_type = "jpy"
-      end
-      user.save(validate: false)
-    end
-
-    Link.find_each do |link|
-      if link.price_currency_type == "yen"
-        link.price_currency_type = "jpy"
-      end
-      link.save(validation: false)
-    end
-
-    Purchase.find_each do |purchase|
-      if purchase.displayed_price_currency_type == "yen"
-        purchase.displayed_price_currency_type = "jpy"
-      end
-      purchase.save(validation: false)
-    end
+    # Use raw SQL to avoid model loading issues
+    execute "UPDATE users SET currency_type = 'jpy' WHERE currency_type = 'yen'"
+    execute "UPDATE links SET price_currency_type = 'jpy' WHERE price_currency_type = 'yen'"
+    execute "UPDATE purchases SET displayed_price_currency_type = 'jpy' WHERE displayed_price_currency_type = 'yen'"
   end
 
   def down
-    User.find_each do |user|
-      if user.currency_type == "jpy"
-        user.currency_type = "yen"
-      end
-      user.save(validate: false)
-    end
-
-    Link.find_each do |link|
-      if link.price_currency_type == "jpy"
-        link.price_currency_type = "yen"
-      end
-      link.save(validation: false)
-    end
-
-    Purchase.find_each do |purchase|
-      if purchase.displayed_price_currency_type == "jpy"
-        purchase.displayed_price_currency_type = "yen"
-      end
-      purchase.save(validation: false)
-    end
+    # Use raw SQL to avoid model loading issues
+    execute "UPDATE users SET currency_type = 'yen' WHERE currency_type = 'jpy'"
+    execute "UPDATE links SET price_currency_type = 'yen' WHERE price_currency_type = 'jpy'"
+    execute "UPDATE purchases SET displayed_price_currency_type = 'yen' WHERE displayed_price_currency_type = 'jpy'"
   end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddPaypalOrderIdToPurchases < ActiveRecord::Migration
+class AddPaypalOrderIdToPurchases < ActiveRecord::Migration[7.1]
   def change
     add_column :purchases, :paypal_order_id, :string
 

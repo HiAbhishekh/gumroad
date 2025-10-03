@@ -131,6 +131,10 @@ describe("Product Edit - Publishing Scenario", type: :system, js: true) do
       end
 
       it "allows publishing if new account and has a valid merchant account connected" do
+        # Stub Stripe account to have charges enabled to prevent timeout
+        allow_any_instance_of(Stripe::Account).to receive(:charges_enabled).and_return(true)
+        allow_any_instance_of(Stripe::Account).to receive(:payouts_enabled).and_return(true)
+        
         visit edit_link_path(@product.unique_permalink)
 
         select_tab "Content"

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateReceipts < ActiveRecord::Migration
+class CreateReceipts < ActiveRecord::Migration[7.1]
   def change
     create_table :receipts do |t|
       t.text :email

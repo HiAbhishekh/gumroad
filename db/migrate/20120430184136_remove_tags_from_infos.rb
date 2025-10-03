@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveTagsFromInfos < ActiveRecord::Migration
+class RemoveTagsFromInfos < ActiveRecord::Migration[7.1]
   def up
     remove_column :infos, :tags
   end

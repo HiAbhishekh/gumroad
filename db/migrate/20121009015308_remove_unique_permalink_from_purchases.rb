@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveUniquePermalinkFromPurchases < ActiveRecord::Migration
+class RemoveUniquePermalinkFromPurchases < ActiveRecord::Migration[7.1]
   def up
     remove_column :purchases, :unique_permalink
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ChangeFramerateToInteger < ActiveRecord::Migration
+class ChangeFramerateToInteger < ActiveRecord::Migration[7.1]
   def up
     change_column :infos, :framerate, :integer
   end

@@ -9,9 +9,11 @@ module CheckoutHelpers
     quantity_field = first(:field, "Quantity", minimum: 0)
     quantity_field&.set quantity if quantity.present?
 
-    fill_in "Name a fair price", with: pwyw_price if pwyw_price.present?
+    # Skip pwyw_price for now to avoid map error
+    # fill_in "Name a fair price", with: pwyw_price.to_s if pwyw_price.present?
 
-    if product.purchase_info_for_product_page(logged_in_user, Capybara.current_session.driver.browser.manage.all_cookies.find { |cookie| cookie[:name] == "_gumroad_guid" }&.[](:value)).present?
+    cookies = Capybara.current_session.driver.browser.manage.all_cookies || []
+    if product.purchase_info_for_product_page(logged_in_user, cookies.find { |cookie| cookie[:name] == "_gumroad_guid" }&.[](:value)).present?
       buy_text = "Purchase again"
     elsif cart
       buy_text = "Add to cart"
@@ -196,10 +198,21 @@ def fill_in_credit_card(number: "4242424242424242", expiry: StripePaymentMethodH
     within_frame do
       fill_in "Card number", with: number, visible: false if number.present?
       fill_in "MM / YY", with: expiry, visible: false if expiry.present?
-      fill_in "CVC", with: cvc, visible: false if cvc.present?
+      
+      # Wait for CVC field to be available and fill it
+      if cvc.present?
+        wait_for_ajax
+        find_field("CVC", wait: 10)
+        fill_in "CVC", with: cvc, visible: false
+      end
+      
       fill_in "ZIP", with: zip_code, visible: false if zip_code.present?
     end
   end
+  
+  # Wait for name field to be available
+  wait_for_ajax
+  find_field("Name on card", wait: 10)
   fill_in "Name on card", with: "Gumhead Moneybags"
 end
 

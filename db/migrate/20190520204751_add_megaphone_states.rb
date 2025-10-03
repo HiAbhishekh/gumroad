@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddMegaphoneStates < ActiveRecord::Migration
+class AddMegaphoneStates < ActiveRecord::Migration[7.1]
   def change
     create_table :megaphone_states do |t|
       t.integer :user_id

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateVariants < ActiveRecord::Migration
+class CreateVariants < ActiveRecord::Migration[7.1]
   def change
     create_table :variants do |t|
       t.integer :variant_category_id

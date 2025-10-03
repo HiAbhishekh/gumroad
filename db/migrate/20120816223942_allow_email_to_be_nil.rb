@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class AllowEmailToBeNil < ActiveRecord::Migration
+class AllowEmailToBeNil < ActiveRecord::Migration[7.1]
   def up
-    change_column :users, :email, :string, allow_nil: true
+    change_column :users, :email, :string, null: true
   end
 
   def down
-    change_column :users, :email, :string, allow_nil: false
+    change_column :users, :email, :string, null: false
   end
 end

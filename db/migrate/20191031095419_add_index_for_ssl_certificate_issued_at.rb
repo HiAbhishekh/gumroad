@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddIndexForSslCertificateIssuedAt < ActiveRecord::Migration
+class AddIndexForSslCertificateIssuedAt < ActiveRecord::Migration[7.1]
   def up
     add_index :custom_domains, :ssl_certificate_issued_at
   end

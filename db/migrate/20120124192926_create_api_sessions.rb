@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateApiSessions < ActiveRecord::Migration
+class CreateApiSessions < ActiveRecord::Migration[7.1]
   def change
     create_table :api_sessions do |t|
       t.integer :user_id

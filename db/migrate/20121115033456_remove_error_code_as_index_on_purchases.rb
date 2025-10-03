@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class RemoveErrorCodeAsIndexOnPurchases < ActiveRecord::Migration
+class RemoveErrorCodeAsIndexOnPurchases < ActiveRecord::Migration[7.1]
   def up
     remove_index :purchases, :error_code
   end

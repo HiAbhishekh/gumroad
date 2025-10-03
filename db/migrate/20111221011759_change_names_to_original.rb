@@ -1,16 +1,10 @@
 # frozen_string_literal: true
 
-class ChangeNamesToOriginal < ActiveRecord::Migration
+class ChangeNamesToOriginal < ActiveRecord::Migration[7.1]
   def up
-    Attachment.find_each do |attachment|
-      puts attachment.id
-      original_file_name = attachment.file_file_name
-      next unless original_file_name
-      # base = File.basename(original_file_name)
-      ext = File.extname(original_file_name)
-      attachment.file_file_name = "original#{ext}"
-      attachment.save(validate: false)
-    end
+    # Use raw SQL to avoid model loading issues
+    # This migration renames file names to "original" with the same extension
+    execute "UPDATE attachments SET file_file_name = CONCAT('original', SUBSTRING_INDEX(file_file_name, '.', -1)) WHERE file_file_name IS NOT NULL"
   end
 
   def down

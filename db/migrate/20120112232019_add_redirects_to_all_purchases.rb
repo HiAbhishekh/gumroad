@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AddRedirectsToAllPurchases < ActiveRecord::Migration
+class AddRedirectsToAllPurchases < ActiveRecord::Migration[7.1]
   def up
     Purchase.find_each do |p|
       p.create_url_redirect!
