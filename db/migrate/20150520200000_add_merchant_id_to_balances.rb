@@ -2,7 +2,7 @@
 
 class AddMerchantIdToBalances < ActiveRecord::Migration[7.1]
   def up
-    add_column :balances, :merchant_account_id, :integer, default: MerchantAccount.gumroad(StripeChargeProcessor.charge_processor_id).id
+    add_column :balances, :merchant_account_id, :integer
     add_index :balances, [:user_id, :merchant_account_id, :date], unique: true
     remove_index :balances, column: [:user_id, :date]
   end

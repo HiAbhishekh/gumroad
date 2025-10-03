@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_08_21_014630) do
+ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
   create_table "ab_tests", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.string "page_name"
@@ -734,6 +734,14 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_014630) do
     t.index ["workflow_id"], name: "index_installments_on_workflow_id"
   end
 
+  create_table "integrations", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "api_key", null: false
+    t.string "integration_type", null: false
+    t.text "json_data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "invites", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.integer "sender_id"
     t.string "receiver_email"
@@ -1213,6 +1221,16 @@ ActiveRecord::Schema[7.1].define(version: 2025_08_21_014630) do
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
     t.index ["link_id"], name: "index_product_installment_plans_on_link_id"
+  end
+
+  create_table "product_integrations", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.bigint "integration_id", null: false
+    t.datetime "deleted_at", precision: nil
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["integration_id"], name: "index_product_integrations_on_integration_id"
+    t.index ["product_id"], name: "index_product_integrations_on_product_id"
   end
 
   create_table "product_review_stats", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|

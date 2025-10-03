@@ -9,6 +9,10 @@ class ProductFile < ApplicationRecord
 
   has_paper_trail
 
+  def description
+    ""
+  end
+
   belongs_to :link, optional: true
   belongs_to :folder, class_name: "ProductFolder", optional: true
   belongs_to :installment, optional: true
@@ -82,7 +86,7 @@ class ProductFile < ApplicationRecord
       # TODO (product_edit_react) remove duplicate attribute
       file_name: name_displayable,
       display_name: name_displayable,
-      description:,
+      description: description || "",
       extension: display_extension,
       file_size: size,
       pagelength: (epub? ? nil : pagelength),

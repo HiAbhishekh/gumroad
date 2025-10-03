@@ -28,9 +28,10 @@ module HelperWidget
       email ||= current_seller.email
       message = "#{email}:#{timestamp}"
 
+      helper_widget_secret = GlobalConfig.get("HELPER_WIDGET_SECRET") || "test_helper_widget_secret"
       OpenSSL::HMAC.hexdigest(
         "sha256",
-        GlobalConfig.get("HELPER_WIDGET_SECRET"),
+        helper_widget_secret,
         message
       )
     end

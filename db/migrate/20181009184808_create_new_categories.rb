@@ -5,15 +5,13 @@ class CreateNewCategories < ActiveRecord::Migration[7.1]
 
   def up
     CATEGORY_NAMES.each do |category_name|
-      category = Category.new
-      category.name = category_name
-      category.save!
+      execute "INSERT INTO categories (name, created_at, updated_at) VALUES ('#{category_name}', NOW(), NOW())"
     end
   end
 
   def down
     CATEGORY_NAMES.each do |category_name|
-      Category.where(name: category_name).destroy_all
+      execute "DELETE FROM categories WHERE name = '#{category_name}'"
     end
   end
 end

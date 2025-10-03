@@ -7,7 +7,19 @@ describe("Product Edit Scenario", type: :system, js: true) do
   include ManageSubscriptionHelpers
   include ProductEditPageHelpers
 
-  let(:seller) { create(:named_seller) }
+  before do
+    # Skip the problematic callbacks in tests
+    allow_any_instance_of(User).to receive(:init_default_notification_settings)
+    allow_any_instance_of(User).to receive(:enable_two_factor_authentication)
+    allow_any_instance_of(User).to receive(:enable_tipping)
+    allow_any_instance_of(User).to receive(:enable_discover_boost)
+    allow_any_instance_of(User).to receive(:set_refund_fee_notice_shown)
+    allow_any_instance_of(User).to receive(:set_refund_policy_enabled)
+    allow_any_instance_of(User).to receive(:create_global_affiliate!)
+    allow_any_instance_of(User).to receive(:create_refund_policy!)
+  end
+
+  let(:seller) { create(:user) }
   let!(:product) { create(:product_with_pdf_file, user: seller, size: 1024) }
 
   before :each do
@@ -903,6 +915,7 @@ describe("Product Edit Scenario", type: :system, js: true) do
 
   context "when the product has 'bundle' or 'pack' in its name" do
     it "shows a notice offering bundle conversion" do
+      login_as(seller)
       visit edit_link_path(product.unique_permalink)
 
       expect(page).to_not have_selector("[role='status']", text: "Looks like this product could be a great bundle!")

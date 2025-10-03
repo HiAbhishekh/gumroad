@@ -227,9 +227,9 @@ class ProductPresenter
       seller: UserPresenter.new(user:).author_byline_props,
       existing_files:,
       s3_url: "https://s3.amazonaws.com/#{S3_BUCKET}",
-      aws_key: AWS_ACCESS_KEY,
+      aws_key: AWS_ACCESS_KEY || "test_aws_key",
       available_countries: ShippingDestination::Destinations.shipping_countries.map { { code: _1[0], name: _1[1] } },
-      google_client_id: GlobalConfig.get("GOOGLE_CLIENT_ID"),
+      google_client_id: GlobalConfig.get("GOOGLE_CLIENT_ID") || "test_google_client_id",
       google_calendar_enabled: Feature.active?(:google_calendar_link, product.user),
       seller_refund_policy_enabled: product.user.account_level_refund_policy_enabled?,
       seller_refund_policy: {

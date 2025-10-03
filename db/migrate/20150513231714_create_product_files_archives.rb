@@ -6,7 +6,10 @@ class CreateProductFilesArchives < ActiveRecord::Migration[7.1]
       t.timestamp :deleted_at
       t.belongs_to :link
       t.belongs_to :installment
-      t.attachment :zip_archive_file
+      t.string :zip_archive_file_file_name
+      t.string :zip_archive_file_content_type
+      t.integer :zip_archive_file_file_size
+      t.datetime :zip_archive_file_updated_at
       t.string :product_files_archive_state
 
       t.timestamps

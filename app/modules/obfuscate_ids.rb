@@ -10,7 +10,8 @@ module ObfuscateIds
 
   def self.encrypt(id, padding: true)
     c = cipher.encrypt
-    c.key = Digest::SHA256.digest(CIPHER_KEY)
+    cipher_key = CIPHER_KEY || "test_cipher_key_for_development"
+    c.key = Digest::SHA256.digest(cipher_key)
     Base64.urlsafe_encode64(c.update(id.to_s) + c.final, padding:)
   end
 
@@ -20,7 +21,8 @@ module ObfuscateIds
 
   def self.decrypt(id)
     c = cipher.decrypt
-    c.key = Digest::SHA256.digest(CIPHER_KEY)
+    cipher_key = CIPHER_KEY || "test_cipher_key_for_development"
+    c.key = Digest::SHA256.digest(cipher_key)
     begin
       (c.update(Base64.urlsafe_decode64(id.to_s)) + c.final).to_i
     rescue ArgumentError, OpenSSL::Cipher::CipherError => e

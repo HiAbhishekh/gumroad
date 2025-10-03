@@ -41,7 +41,7 @@ module Affiliate::AudienceMember
 
   private
     def update_audience_member_details
-      return unless type == "DirectAffiliate"
+      return unless self.class.name == "DirectAffiliate"
       return if !previous_changes.keys.intersect?(%w[deleted_at flags])
       return remove_from_audience_member_details unless should_be_audience_member?
       return unless deleted_at_previously_changed?

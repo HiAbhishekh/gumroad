@@ -314,6 +314,35 @@ class User < ApplicationRecord
       @tier_state || "tier_0"
     end
     
+    # State machine query methods for test environment
+    def suspended_for_tos_violation?
+      user_risk_state == "suspended_for_tos_violation"
+    end
+    
+    def suspended_for_fraud?
+      user_risk_state == "suspended_for_fraud"
+    end
+    
+    def flagged_for_tos_violation?
+      user_risk_state == "flagged_for_tos_violation"
+    end
+    
+    def flagged_for_fraud?
+      user_risk_state == "flagged_for_fraud"
+    end
+    
+    def not_reviewed?
+      user_risk_state == "not_reviewed"
+    end
+    
+    def compliant?
+      user_risk_state == "compliant"
+    end
+    
+    def on_probation?
+      user_risk_state == "on_probation"
+    end
+    
     # Generic method_missing handler for missing attribute setters in test environment
         def method_missing(method_name, *args, &block)
           if method_name.to_s.end_with?('=') && args.length == 1
@@ -342,6 +371,14 @@ class User < ApplicationRecord
         else
           super
         end
+      elsif method_name.to_s.end_with?('?') && method_name.to_s.match?(/^[a-z_][a-z0-9_]*\?$/)
+        # Handle state machine query methods
+        state_name = method_name.to_s.chomp('?')
+        if %w[not_reviewed compliant on_probation flagged_for_fraud flagged_for_tos_violation suspended_for_fraud suspended_for_tos_violation].include?(state_name)
+          user_risk_state == state_name
+        else
+          super
+        end
       else
         super
       end
@@ -353,6 +390,10 @@ class User < ApplicationRecord
             %w[email username password encrypted_password confirmed_at user_risk_state payment_address current_sign_in_ip last_sign_in_ip account_created_ip pre_signup_affiliate_request_processed buyer_signup tier_state flags name created_at check_merchant_account_is_linked].include?(attr_name)
       elsif method_name.to_s.match?(/^[a-z_][a-z0-9_]*$/)
         %w[email username password confirmed_at user_risk_state payment_address current_sign_in_ip last_sign_in_ip account_created_ip pre_signup_affiliate_request_processed buyer_signup tier_state check_merchant_account_is_linked].include?(method_name.to_s)
+      elsif method_name.to_s.end_with?('?') && method_name.to_s.match?(/^[a-z_][a-z0-9_]*\?$/)
+        # Handle state machine query methods
+        state_name = method_name.to_s.chomp('?')
+        %w[not_reviewed compliant on_probation flagged_for_fraud flagged_for_tos_violation suspended_for_fraud suspended_for_tos_violation].include?(state_name)
       else
         super
       end

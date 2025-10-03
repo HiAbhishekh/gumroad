@@ -175,7 +175,7 @@ class Link < ApplicationRecord
 
   DEFAULT_BOOSTED_DISCOVER_FEE_PER_THOUSAND = 300
 
-  belongs_to :user, optional: true unless Rails.env.test?
+  belongs_to :user, optional: true
   has_many :prices
   has_many :alive_prices, -> { alive }, class_name: "Price"
   has_one :installment_plan, -> { alive }, class_name: "ProductInstallmentPlan"

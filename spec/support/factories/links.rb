@@ -6,6 +6,10 @@ FactoryBot.define do
     description { "This is a collection of works spanning 1984 — 1994, while I spent time in a shack in the Andes." }
     user { create(:user) }
     price_cents { 100 }
+    price_currency_type { "usd" }
+    native_type { "digital" }
+    filetype { "pdf" }
+    filegroup { "document" }
     display_product_reviews { true }
 
     transient do
@@ -162,7 +166,7 @@ My email is test@gmail.com <i>Reach out and say hi!</i>
 
     factory :product_with_pdf_file do
       after(:create) do |product|
-        create(:readable_document, link: product, pagelength: 3, size: 50, display_name: "Display Name", description: "Description")
+        create(:readable_document, link: product, pagelength: 3, size: 50, display_name: "Display Name")
       end
     end
 

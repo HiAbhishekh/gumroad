@@ -2,12 +2,10 @@
 
 class RemoveOtherCategory < ActiveRecord::Migration[7.1]
   def up
-    Category.where(name: "other").destroy_all
+    execute "DELETE FROM categories WHERE name = 'other'"
   end
 
   def down
-    category = Category.new
-    category.name = "other"
-    category.save!
+    execute "INSERT INTO categories (name, created_at, updated_at) VALUES ('other', NOW(), NOW())"
   end
 end

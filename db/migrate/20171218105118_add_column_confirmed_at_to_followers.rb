@@ -7,7 +7,7 @@ class AddColumnConfirmedAtToFollowers < ActiveRecord::Migration[7.1]
     reversible do |direction|
       direction.up do
         Follower.reset_column_information
-        Follower.alive.update_all(confirmed_at: Time.current)
+        Follower.update_all(confirmed_at: Time.current)
       end
     end
   end
