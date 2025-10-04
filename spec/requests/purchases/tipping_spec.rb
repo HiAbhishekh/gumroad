@@ -258,6 +258,10 @@ describe "Product checkout with tipping", type: :system, js: true do
         add_to_cart(free_product1, pwyw_price: 0)
 
         fill_in "Tip", with: 1.98
+        
+        # Wait for tip amount to be processed and applied to total
+        expect(page).to have_text("Tip US$1.98", normalize_ws: true)
+        
         fill_checkout_form(free_product1)
         expect(page).to have_text("Total US$1.98", normalize_ws: true)
         click_on "Pay"
