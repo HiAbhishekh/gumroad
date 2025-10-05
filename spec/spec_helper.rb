@@ -23,15 +23,40 @@ Capybara.test_id = "data-testid"
 Capybara.default_max_wait_time = 25
 Capybara.app_host = "#{PROTOCOL}://#{DOMAIN}"
 Capybara.server = :puma
-Capybara.server_port = URI(Capybara.app_host).port
+# Allow dynamic port configuration via environment variable to avoid port conflicts
+# Use port 0 to let the system assign an available port, or use environment variable
+Capybara.server_port = ENV["CAPYBARA_SERVER_PORT"]&.to_i || 0
 Capybara.threadsafe = true
 Capybara.enable_aria_label = true
 Capybara.enable_aria_role = true
+
+# Increase server timeout to prevent "Rack application timed out during boot"
+Capybara.default_driver = :rack_test
+Capybara.javascript_driver = :chrome
+
+# Set environment variable for longer timeout
+ENV['RACK_TIMEOUT'] = '60'
 
 FactoryBot.definition_file_paths << Rails.root.join("spec", "support", "factories")
 Mongoid.load!(Rails.root.join("config", "mongoid.yml"))
 Braintree::Configuration.logger = Logger.new(File::NULL)
 PayPal::SDK.logger = Logger.new(File::NULL)
+
+# Reset FactoryBot sequences to prevent huge ID generation
+RSpec.configure do |config|
+  config.before(:suite) do
+    FactoryBot.reload
+  end
+end
+
+# Optimize test environment for faster boot
+Rails.application.config.force_ssl = false
+Rails.application.config.log_level = :warn
+Rails.application.config.active_job.queue_adapter = :test
+
+# Disable FlagShihTzu warnings in test environment to prevent boot timeouts
+# Set environment variable to disable column checking
+ENV['FLAGSHIHTZU_CHECK_FOR_COLUMN'] = 'false'
 
 unless BUILDING_ON_CI
   # super_diff error formatting doesn't work well on CI, and for flaky Capybara specs it can potentially obfuscate the actual error
@@ -188,6 +213,14 @@ RSpec.configure do |config|
     puts " [#{spec_example_duration.round(2)}s]"
   end
 
+  # Preload application to prevent boot timeouts
+  config.before(:suite) do
+    Rails.application.eager_load!
+    # Clear schema cache to ensure fresh column information
+    ActiveRecord::Base.connection.schema_cache.clear!
+    ActiveRecord::Base.descendants.each(&:reset_column_information)
+  end
+
   # Differences between before/after and around: https://relishapp.com/rspec/rspec-core/v/3-0/docs/hooks/around-hooks
   # tldr: before/after will share state with the example, needed for some plugins
   config.before(:each) do
@@ -255,10 +288,19 @@ RSpec.configure do |config|
     options = %w[caching js] # delegate all the before- and after- hooks for these values to metaprogramming "setup" and "teardown" methods, below
     options.each { |opt| send(:"setup_#{ opt }", example.metadata[opt.to_sym]) }
     stub_webmock
-    example.run
+    
+    # Set timeout for this test
+    Timeout::timeout(120) do
+      example.run
+    end
     options.each { |opt| send(:"teardown_#{ opt }", example.metadata[opt.to_sym]) }
     Rails.cache.clear
     travel_back
+    
+    # Clean up Capybara server to prevent port conflicts
+    if Capybara.current_session && Capybara.current_session.server
+      Capybara.current_session.server.stop
+    end
   end
 
   config.around(:each, :shipping) do |example|

@@ -87,7 +87,7 @@ describe "Embed scenario", type: :system, js: true do
     let(:offer_code) { create(:offer_code, user: product.user, products: [product]) }
 
     it "applies the discount code" do
-      visit(create_embed_page(product, url: "#{product.long_url}/#{offer_code.code}", outbound: false))
+      visit(create_embed_page(product, url: "#{product.long_url}?code=#{offer_code.code}", outbound: false))
 
       within_frame do
         expect(page).to have_status(text: "$1 off will be applied at checkout (Code SXSW)")

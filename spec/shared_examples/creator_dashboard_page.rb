@@ -5,11 +5,16 @@ require "spec_helper"
 RSpec.shared_examples_for "creator dashboard page" do |title|
   it "marks the correct navigation link as active" do
     visit path
+    
+    # Wait for navigation to load and update
+    expect(page).to have_css("nav[aria-label='Main']")
     within "nav", aria: { label: "Main" } do
       expect(page).to have_link(title, aria: { current: "page" })
     end
 
     visit "#{path}/"
+    # Wait for navigation to load and update
+    expect(page).to have_css("nav[aria-label='Main']")
     within "nav", aria: { label: "Main" } do
       expect(page).to have_link(title, aria: { current: "page" })
     end

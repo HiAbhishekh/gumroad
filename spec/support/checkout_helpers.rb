@@ -117,7 +117,11 @@ module CheckoutHelpers
 
       fill_in country_value == "US" ? "ZIP code" : "Postal", with: address[:zip_code] || "94107"
     else
-      fill_in "ZIP code", with: zip_code if zip_code.present? && !is_free
+      if zip_code.present? && !is_free
+        within("form") do
+          fill_in "ZIP code", with: zip_code
+        end
+      end
     end
 
     if offer_code.present?

@@ -84,6 +84,9 @@ FactoryBot.define do
       username { generate(:fixed_username) }
       email { generate(:fixed_email) }
       payment_address { generate(:fixed_email) }
+      currency_type { "usd" }
+      timezone { "UTC" }
+      locale { "en-US" }
 
       trait :admin do
         is_team_member { true }

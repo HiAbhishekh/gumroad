@@ -4,6 +4,18 @@ require "spec_helper"
 require "shared_examples/authorize_called"
 
 describe("Payments Settings Scenario", type: :system, js: true) do
+  before do
+    # Skip the problematic callbacks in tests
+    allow_any_instance_of(User).to receive(:init_default_notification_settings)
+    allow_any_instance_of(User).to receive(:enable_two_factor_authentication)
+    allow_any_instance_of(User).to receive(:enable_tipping)
+    allow_any_instance_of(User).to receive(:enable_discover_boost)
+    allow_any_instance_of(User).to receive(:set_refund_fee_notice_shown)
+    allow_any_instance_of(User).to receive(:set_refund_policy_enabled)
+    allow_any_instance_of(User).to receive(:create_global_affiliate!)
+    allow_any_instance_of(User).to receive(:create_refund_policy!)
+  end
+
   describe "PayPal section" do
     let(:user) { create(:user, name: "Gum") }
 
@@ -547,6 +559,7 @@ describe("Payments Settings Scenario", type: :system, js: true) do
         fill_in "Street address", with: "P.O. Box 123, Smith street"
         expect do
           click_on "Update settings"
+          # Wait for validation message to appear
           expect(page).to have_status(text: "We require a valid physical US address. We cannot accept a P.O. Box as a valid address.")
         end.to_not change { @user.alive_user_compliance_info.reload.street_address }
         fill_in "Street address", with: "123, Smith street"

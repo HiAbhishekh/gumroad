@@ -11,4 +11,5 @@ FactoryBot.define do
   sequence(:ip) { ["4.167.234.0", "199.21.86.138", "12.38.32.0", "64.115.250.0"].sample }
   sequence(:token) { |n| "#{("a".."z").to_a.shuffle.join}#{n}" }
   sequence(:fixed_timestamp) { |n| DateTime.parse("2021-12-02 01:22:10") + n.minutes }
+  sequence(:user_id) { |n| n }
 end

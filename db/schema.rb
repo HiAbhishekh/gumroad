@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_04_175458) do
   create_table "ab_tests", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.string "page_name"
@@ -452,6 +452,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.datetime "updated_at", null: false
     t.datetime "ssl_certificate_issued_at"
     t.datetime "deleted_at"
+    t.bigint "product_id"
     t.index ["ssl_certificate_issued_at"], name: "index_custom_domains_on_ssl_certificate_issued_at"
     t.index ["user_id"], name: "index_custom_domains_on_user_id"
   end
@@ -740,6 +741,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.text "json_data"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "type"
   end
 
   create_table "invites", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -839,7 +841,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
   end
 
   create_table "links", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
-    t.integer "user_id"
+    t.bigint "user_id"
     t.string "name"
     t.string "unique_permalink"
     t.text "url", size: :medium
@@ -1030,9 +1032,19 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.integer "amount_percentage"
     t.integer "user_id", null: false
     t.string "currency_type"
+    t.bigint "flags", default: 0
     t.index ["link_id"], name: "index_offer_codes_on_link_id"
     t.index ["name", "link_id"], name: "index_offer_codes_on_name_and_link_id"
     t.index ["user_id"], name: "index_offer_codes_on_user_id"
+  end
+
+  create_table "offer_codes_products", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.bigint "offer_code_id", null: false
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["offer_code_id"], name: "index_offer_codes_products_on_offer_code_id"
+    t.index ["product_id"], name: "index_offer_codes_products_on_product_id"
   end
 
   create_table "parents_children", id: false, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
@@ -1456,7 +1468,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
 
   create_table "refund_policies", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
     t.bigint "seller_id", null: false
-    t.bigint "product_id", null: false
+    t.bigint "product_id"
     t.string "title", null: false
     t.text "fine_print"
     t.string "type"
@@ -1495,6 +1507,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_09_25_161102) do
     t.datetime "deleted_at"
     t.index ["oauth_application_id"], name: "index_resource_subscriptions_on_oauth_application_id"
     t.index ["user_id"], name: "index_resource_subscriptions_on_user_id"
+  end
+
+  create_table "rich_contents", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "contentable_type", null: false
+    t.bigint "contentable_id", null: false
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at", precision: nil
+    t.bigint "entity_id"
+    t.string "entity_type"
+    t.index ["contentable_type", "contentable_id"], name: "index_rich_contents_on_contentable"
   end
 
   create_table "seller_profile_sections", charset: "utf8mb4", collation: "utf8mb4_unicode_ci", force: :cascade do |t|
