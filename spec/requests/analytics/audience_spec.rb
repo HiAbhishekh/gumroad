@@ -31,6 +31,9 @@ describe "Audience analytics", :js, :sidekiq_inline, :elasticsearch_wait_for_ref
 
     it "calculates total stats" do
       visit audience_dashboard_path(from: "2023-12-01", to: "2023-12-31")
+      
+      expect(page).to have_section("Lifetime followers")
+      expect(page).to have_section("New followers")
       within_section("Lifetime followers") { expect(page).to have_text("3") }
       within_section("New followers") { expect(page).to have_text("3") }
 
@@ -47,6 +50,8 @@ describe "Audience analytics", :js, :sidekiq_inline, :elasticsearch_wait_for_ref
 
     it "shows the chart" do
       visit audience_dashboard_path(from: "2023-12-01", to: "2023-12-31")
+      
+      expect(page).to have_css(".chart")
       expect(page).to have_css(".point", count: 31)
 
       chart = find(".chart")
